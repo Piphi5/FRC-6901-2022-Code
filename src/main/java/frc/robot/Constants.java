@@ -15,6 +15,7 @@ package frc.robot;
 public final class Constants {
 
   public static final int kXboxPort = 0;
-  public static final int kSparkMaxPort = 0;
+  public static final int kSparkMaxLeaderPort = 1;
+  public static final int kSparkMaxFollowerPort = 2;
   public static final double kPower = 0.6;
 }

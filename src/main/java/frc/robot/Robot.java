@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -23,9 +24,12 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
 
   private XboxController m_controller = new XboxController(Constants.kXboxPort);
-  private CANSparkMax m_shooterSparkMax =
-      new CANSparkMax(Constants.kSparkMaxPort, MotorType.kBrushless);
-
+  private CANSparkMax m_shooterSparkMaxLeader =
+      new CANSparkMax(Constants.kSparkMaxLeaderPort, MotorType.kBrushless);
+  private CANSparkMax m_shooterSparkMaxFollower =
+      new CANSparkMax(Constants.kSparkMaxFollowerPort, MotorType.kBrushless);
+  private MotorControllerGroup m_shooterGroup =
+      new MotorControllerGroup(m_shooterSparkMaxLeader, m_shooterSparkMaxFollower);
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -35,6 +39,7 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    m_shooterSparkMaxFollower.setInverted(true);
   }
 
   /**
@@ -90,11 +95,11 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     if (m_controller.getLeftBumper()) {
-      m_shooterSparkMax.set(Constants.kPower);
+      m_shooterGroup.set(Constants.kPower);
     } else if (m_controller.getRightBumper()) {
-      m_shooterSparkMax.set(-Constants.kPower);
+      m_shooterGroup.set(-Constants.kPower);
     } else {
-      m_shooterSparkMax.set(0.0);
+      m_shooterGroup.set(0.0);
     }
   }
 
