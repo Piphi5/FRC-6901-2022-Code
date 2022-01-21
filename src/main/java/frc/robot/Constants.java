@@ -18,4 +18,9 @@ public final class Constants {
   public static final int kSparkMaxLeaderPort = 1;
   public static final int kSparkMaxFollowerPort = 2;
   public static final double kPower = 0.6;
+  public static final double kS = 0.14276;
+  public static final double kV = 0.12666;
+  public static final double kA = 0.0038087;
+  public static final double kP = 0.0001;
+  public static final double kRPM = 5500;
 }

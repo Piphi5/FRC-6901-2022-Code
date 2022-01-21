@@ -5,10 +5,14 @@
 package frc.robot;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -23,13 +27,16 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
+  private SimpleMotorFeedforward m_flywheelFeedforward =
+      new SimpleMotorFeedforward(Constants.kS, Constants.kV, Constants.kA);
+
   private XboxController m_controller = new XboxController(Constants.kXboxPort);
   private CANSparkMax m_shooterSparkMaxLeader =
       new CANSparkMax(Constants.kSparkMaxLeaderPort, MotorType.kBrushless);
   private CANSparkMax m_shooterSparkMaxFollower =
       new CANSparkMax(Constants.kSparkMaxFollowerPort, MotorType.kBrushless);
-  private MotorControllerGroup m_shooterGroup =
-      new MotorControllerGroup(m_shooterSparkMaxLeader, m_shooterSparkMaxFollower);
+
+  private SparkMaxPIDController m_shooterController = m_shooterSparkMaxLeader.getPIDController();
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -39,7 +46,8 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    m_shooterSparkMaxFollower.setInverted(true);
+    m_shooterSparkMaxFollower.follow(m_shooterSparkMaxLeader, true);
+    m_shooterController.setP(Constants.kP);
   }
 
   /**
@@ -56,6 +64,7 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    SmartDashboard.putNumber("RPM", m_shooterSparkMaxLeader.getEncoder().getVelocity());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -94,12 +103,15 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    double feedForward = m_flywheelFeedforward.calculate(Constants.kRPM / 60);
     if (m_controller.getLeftBumper()) {
-      m_shooterGroup.set(Constants.kPower);
+      m_shooterController.setReference(
+          Constants.kRPM, ControlType.kVelocity, 0, feedForward, ArbFFUnits.kVoltage);
     } else if (m_controller.getRightBumper()) {
-      m_shooterGroup.set(-Constants.kPower);
+      m_shooterController.setReference(
+          Constants.kRPM, ControlType.kVelocity, 0, feedForward, ArbFFUnits.kVoltage);
     } else {
-      m_shooterGroup.set(0.0);
+      m_shooterSparkMaxLeader.set(0.0);
     }
   }
 
