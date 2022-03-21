@@ -58,8 +58,8 @@ public final class Constants {
     public static final int kRightSRXDrivePort = 3;
     public static final int kRightSPXDrivePort = 4;
 
-    public static final double kDriveForwardMultiplier = 1;
-    public static final double kDriveTurnMultiplier = 1;
+    public static final double kDriveForwardMultiplier = 0.8;
+    public static final double kDriveTurnMultiplier = 0.8;
 
     public static final double kLinearKS = 1.5819;
     public static final double kLinearKV = 2.9238;
@@ -89,7 +89,7 @@ public final class Constants {
     public static final double kAutoMaxSpeed = 1;
     public static final double kAutoMaxAccel = 2;
 
-    public static final double kAutoTime = 2.5;
+    public static final double kAutoTime = 3.0;
   }
 
   public static final class PneumaticClimbConstants {
